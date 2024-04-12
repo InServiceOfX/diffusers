@@ -437,6 +437,7 @@ class OnnxStableDiffusionPipeline(DiffusionPipeline):
         image = np.clip(image / 2 + 0.5, 0, 1)
         image = image.transpose((0, 2, 3, 1))
 
+        """
         if self.safety_checker is not None:
             safety_checker_input = self.feature_extractor(
                 self.numpy_to_pil(image), return_tensors="np"
@@ -452,6 +453,8 @@ class OnnxStableDiffusionPipeline(DiffusionPipeline):
             image = np.concatenate(images)
         else:
             has_nsfw_concept = None
+        """
+        has_nsfw_concept = None
 
         if output_type == "pil":
             image = self.numpy_to_pil(image)
