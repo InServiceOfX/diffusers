@@ -33,13 +33,15 @@ class IFSafetyChecker(PreTrainedModel):
 
         if any(nsfw_detected):
             logger.warning(
-                "Potential NSFW content was detected in one or more images. A black image will be returned instead."
+                "Potential NSFW content was detected in one or more images. A black image was going to be returned."
                 " Try again with a different prompt and/or seed."
             )
 
         for idx, nsfw_detected_ in enumerate(nsfw_detected):
             if nsfw_detected_:
-                images[idx] = np.zeros(images[idx].shape)
+                # originally,
+                #images[idx] = np.zeros(images[idx].shape)
+                continue
 
         watermark_detected = self.w_head(image_embeds)
         watermark_detected = watermark_detected.flatten()
@@ -48,12 +50,14 @@ class IFSafetyChecker(PreTrainedModel):
 
         if any(watermark_detected):
             logger.warning(
-                "Potential watermarked content was detected in one or more images. A black image will be returned instead."
+                "Potential watermarked content was detected in one or more images. A black image was going to be returned."
                 " Try again with a different prompt and/or seed."
             )
 
         for idx, watermark_detected_ in enumerate(watermark_detected):
             if watermark_detected_:
-                images[idx] = np.zeros(images[idx].shape)
+                # originally,
+                #images[idx] = np.zeros(images[idx].shape)
+                continue
 
         return images, nsfw_detected, watermark_detected
