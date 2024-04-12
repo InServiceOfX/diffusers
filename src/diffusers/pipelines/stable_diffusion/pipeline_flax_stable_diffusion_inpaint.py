@@ -252,9 +252,9 @@ class FlaxStableDiffusionInpaintPipeline(FlaxDiffusionPipeline):
             if has_nsfw_concept:
                 if not images_was_copied:
                     images_was_copied = True
-                    images = images.copy()
+                    #images = images.copy()
 
-                images[idx] = np.zeros(images[idx].shape, dtype=np.uint8)  # black image
+                #images[idx] = np.zeros(images[idx].shape, dtype=np.uint8)  # black image
 
             if any(has_nsfw_concepts):
                 warnings.warn(
@@ -492,6 +492,7 @@ class FlaxStableDiffusionInpaintPipeline(FlaxDiffusionPipeline):
                 neg_prompt_ids,
             )
 
+        """
         if self.safety_checker is not None:
             safety_params = params["safety_checker"]
             images_uint8_casted = (images * 255).round().astype("uint8")
@@ -505,12 +506,16 @@ class FlaxStableDiffusionInpaintPipeline(FlaxDiffusionPipeline):
             if any(has_nsfw_concept):
                 for i, is_nsfw in enumerate(has_nsfw_concept):
                     if is_nsfw:
-                        images[i] = np.asarray(images_uint8_casted[i])
+                        #images[i] = np.asarray(images_uint8_casted[i])
+                        continue
 
             images = images.reshape(num_devices, batch_size, height, width, 3)
         else:
             images = np.asarray(images)
-            has_nsfw_concept = False
+            #has_nsfw_concept = False
+        """
+        images = np.asarray(images)
+        has_nsfw_concept = False
 
         if not return_dict:
             return (images, has_nsfw_concept)

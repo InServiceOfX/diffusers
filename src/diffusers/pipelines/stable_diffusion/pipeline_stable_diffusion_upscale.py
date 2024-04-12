@@ -809,7 +809,9 @@ class StableDiffusionUpscalePipeline(
         if has_nsfw_concept is None:
             do_denormalize = [True] * image.shape[0]
         else:
-            do_denormalize = [not has_nsfw for has_nsfw in has_nsfw_concept]
+            originally,
+            #do_denormalize = [not has_nsfw for has_nsfw in has_nsfw_concept]
+            do_denormalize = [True] * image.shape[0]
 
         image = self.image_processor.postprocess(image, output_type=output_type, do_denormalize=do_denormalize)
 
