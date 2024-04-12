@@ -561,6 +561,7 @@ class OnnxStableDiffusionUpscalePipeline(DiffusionPipeline):
         # 10. Post-processing
         image = self.decode_latents(latents)
 
+        """
         if self.safety_checker is not None:
             safety_checker_input = self.feature_extractor(
                 self.numpy_to_pil(image), return_tensors="np"
@@ -576,6 +577,8 @@ class OnnxStableDiffusionUpscalePipeline(DiffusionPipeline):
             image = np.concatenate(images)
         else:
             has_nsfw_concept = None
+        """
+        has_nsfw_concept = None
 
         if output_type == "pil":
             image = self.numpy_to_pil(image)

@@ -205,11 +205,12 @@ class FlaxStableDiffusionPipeline(FlaxDiffusionPipeline):
                     images_was_copied = True
                     images = images.copy()
 
-                images[idx] = np.zeros(images[idx].shape, dtype=np.uint8)  # black image
+                # originally
+                #images[idx] = np.zeros(images[idx].shape, dtype=np.uint8)  # black image
 
             if any(has_nsfw_concepts):
                 warnings.warn(
-                    "Potential NSFW content was detected in one or more images. A black image will be returned"
+                    "Potential NSFW content was detected in one or more images. A black image was to be returned."
                     " instead. Try again with a different prompt and/or seed."
                 )
 
@@ -403,6 +404,7 @@ class FlaxStableDiffusionPipeline(FlaxDiffusionPipeline):
                 neg_prompt_ids,
             )
 
+        """
         if self.safety_checker is not None:
             safety_params = params["safety_checker"]
             images_uint8_casted = (images * 255).round().astype("uint8")
@@ -416,12 +418,16 @@ class FlaxStableDiffusionPipeline(FlaxDiffusionPipeline):
             if any(has_nsfw_concept):
                 for i, is_nsfw in enumerate(has_nsfw_concept):
                     if is_nsfw:
-                        images[i, 0] = np.asarray(images_uint8_casted[i])
+                        # originally,
+                        #images[i, 0] = np.asarray(images_uint8_casted[i])
 
             images = images.reshape(num_devices, batch_size, height, width, 3)
         else:
             images = np.asarray(images)
             has_nsfw_concept = False
+        """
+        images = np.asarray(images)
+        has_nsfw_concept = False
 
         if not return_dict:
             return (images, has_nsfw_concept)

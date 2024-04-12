@@ -229,3 +229,22 @@ We also want to thank @heejkoo for the very helpful overview of papers, code and
   howpublished = {\url{https://github.com/huggingface/diffusers}}
 }
 ```
+
+## Creating and starting a virtual environment for Python 3
+
+Create a directory for a virtual environment:
+
+```
+/InServiceOfX$ python3 -m venv ./venv/
+```
+
+Activate it:
+```
+/InServiceOfX$ source ./venv/bin/activate
+```
+You should see the prompt have a prefix `(venv)`.
+
+Deactivate it:
+```
+deactivate
+```
