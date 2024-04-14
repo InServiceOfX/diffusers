@@ -25,6 +25,7 @@ import torch
 from huggingface_hub import model_info
 from huggingface_hub.utils import validate_hf_hub_args
 from packaging import version
+from safetensors import SafetensorError
 
 from .. import __version__
 from ..utils import (
@@ -697,10 +698,53 @@ def load_sub_model(
 
     # check if the module is in a subdirectory
     if os.path.isdir(os.path.join(cached_folder, name)):
-        loaded_sub_model = load_method(os.path.join(cached_folder, name), **loading_kwargs)
+        try:
+            loaded_sub_model = load_method(os.path.join(cached_folder, name), **loading_kwargs)
+        except SafetensorError as err:
+            print("SafetensorError exception;")
+            print(type(err))
+            print(err.args)
+            print(err)
+            print("cached_folder: ", cached_folder)
+            print(loading_kwargs)
+            raise err
+        except RuntimeError as err:
+            print("RuntimeError exception;")
+            print(type(err))
+            print(err.args)
+            print(err)
+            print("cached_folder: ", cached_folder)
+            print("name: ", name)
+            print(loading_kwargs)
+            raise err
+        else:
+            print("cached_folder: ", cached_folder)
+            print("name: ", name)
+            print(loading_kwargs)
     else:
         # else load from the root directory
-        loaded_sub_model = load_method(cached_folder, **loading_kwargs)
+        try:
+            loaded_sub_model = load_method(cached_folder, **loading_kwargs)
+        except SafetensorError as err:
+            print("SafetensorError exception:")
+            print(type(err))
+            print(err.args)
+            print(err)
+            print("cached_folder: ", cached_folder)
+            print(loading_kwargs)
+            raise err
+        except RuntimeError as err:
+            print("RuntimeError exception:")
+            print(type(err))
+            print(err.args)
+            print(err)
+            print("cached_folder: ", cached_folder)
+            print(loading_kwargs)
+            raise err
+        else:
+            print("cached_folder: ", cached_folder)
+            print("name: ", name)
+            print(loading_kwargs)
 
     if isinstance(loaded_sub_model, torch.nn.Module) and isinstance(device_map, dict):
         # remove hooks
