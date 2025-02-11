@@ -25,6 +25,8 @@ import torch
 from huggingface_hub import DDUFEntry, ModelCard, model_info, snapshot_download
 from huggingface_hub.utils import HfHubHTTPError, OfflineModeIsEnabled, validate_hf_hub_args
 from packaging import version
+from requests.exceptions import HTTPError
+from safetensors import SafetensorError
 
 from .. import __version__
 from ..utils import (
@@ -719,6 +721,34 @@ def _get_final_device_map(device_map, pipeline_class, passed_class_obj, init_dic
     return final_device_map
 
 
+def _try_load_model(load_func, cached_folder, name, loading_kwargs):
+    """Helper function to attempt loading a model with error handling."""
+    try:
+        loaded_sub_model = load_func()
+    except SafetensorError as err:
+        print("SafetensorError exception;")
+        print(type(err))
+        print(err.args)
+        print(err)
+        print("cached_folder: ", cached_folder)
+        print(loading_kwargs)
+        raise err
+    except RuntimeError as err:
+        print("RuntimeError exception;")
+        print(type(err))
+        print(err.args)
+        print(err)
+        print("cached_folder: ", cached_folder)
+        print("name: ", name)
+        print(loading_kwargs)
+        raise err
+    else:
+        print("cached_folder: ", cached_folder)
+        print("name: ", name)
+        print(loading_kwargs)
+    return loaded_sub_model
+
+
 def load_sub_model(
     library_name: str,
     class_name: str,
@@ -852,12 +882,30 @@ def load_sub_model(
     # check if the module is in a subdirectory
     if dduf_entries:
         loading_kwargs["dduf_entries"] = dduf_entries
-        loaded_sub_model = load_method(name, **loading_kwargs)
+        load_func = lambda: load_method(name, **loading_kwargs)
+        loaded_sub_model = _try_load_model(
+            load_func,
+            cached_folder,
+            name,
+            loading_kwargs)
     elif os.path.isdir(os.path.join(cached_folder, name)):
-        loaded_sub_model = load_method(os.path.join(cached_folder, name), **loading_kwargs)
+        load_func = lambda: load_method(
+            os.path.join(cached_folder, name),
+            **loading_kwargs)
+        loaded_sub_model = _try_load_model(
+            load_func,
+            cached_folder,
+            name,
+            loading_kwargs)
     else:
-        # else load from the root directory
-        loaded_sub_model = load_method(cached_folder, **loading_kwargs)
+        load_func = lambda: load_method(
+            cached_folder,
+            **loading_kwargs)
+        loaded_sub_model = _try_load_model(
+            load_func,
+            cached_folder,
+            name,
+            loading_kwargs)
 
     if isinstance(loaded_sub_model, torch.nn.Module) and isinstance(device_map, dict):
         # remove hooks
